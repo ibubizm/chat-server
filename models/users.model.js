@@ -10,10 +10,9 @@ const userSchema = new Schema({
     type: String,
     required: false,
   },
-  rooms: {
+  roomId: {
     type: [{ roomId: String, roomAvatar: String }],
   },
-  is_active: { type: Boolean, default: false },
 })
 
 export default model('User', userSchema)

@@ -3,20 +3,24 @@ import { Message } from '../../models/message.model.js'
 const messages = {}
 
 export default function messageHandlers(io, socket) {
-  const { roomId } = socket
+  const { roomId, roomList } = socket
 
   const updateMessageList = () => {
     io.to(roomId).emit('message_list:update', messages[roomId])
   }
 
-  socket.on('message:get', async () => {
+  socket.on('rooms:get', () => {
+    socket.emit('rooms:update', roomList)
+  })
+
+  socket.on('message:get', async (id) => {
     try {
       const _messages = await Message.find({
-        roomId,
+        roomId: id,
       })
-      messages[roomId] = _messages
+      messages[id] = _messages
 
-      updateMessageList()
+      socket.emit('message_list:update', messages[id])
     } catch {
       console.log('errror')
     }
@@ -26,9 +30,11 @@ export default function messageHandlers(io, socket) {
     Message.create(message)
 
     message.createdAt = Date.now()
-
     messages[roomId].push(message)
 
+    let rm = roomList.find((i) => i.roomId == roomId)
+    rm['text'] = message.text
+    rm['date'] = message.createdAt
     updateMessageList()
   })
 

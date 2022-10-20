@@ -1,7 +1,7 @@
 const users = {}
 
 export default function userHandlers(io, socket) {
-  const { roomId, userName } = socket
+  const { roomId } = socket
 
   if (!users[roomId]) {
     users[roomId] = []
