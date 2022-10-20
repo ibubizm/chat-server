@@ -5,8 +5,12 @@ const messages = {}
 export default function messageHandlers(io, socket) {
   const { roomId, roomList } = socket
 
-  const updateMessageList = () => {
-    io.to(roomId).emit('message_list:update', messages[roomId])
+  const updateMessageList = (room) => {
+    io.to(roomId).emit('message_list:update', messages[room])
+  }
+
+  const updateRoomList = () => {
+    io.to(roomId).emit('rooms:update', roomList)
   }
 
   socket.on('rooms:get', () => {
@@ -30,19 +34,21 @@ export default function messageHandlers(io, socket) {
     Message.create(message)
 
     message.createdAt = Date.now()
-    messages[roomId].push(message)
+    messages[message.roomId].push(message)
 
-    let rm = roomList.find((i) => i.roomId == roomId)
+    let rm = roomList.find((i) => i.roomId == message.roomId)
     rm['text'] = message.text
     rm['date'] = message.createdAt
-    updateMessageList()
+    updateRoomList()
+    updateMessageList(message.roomId)
   })
 
-  socket.on('message:remove', (message) => {
-    const { messageId } = message
+  // socket.on('message:remove', (message) => {
+  //   const { messageId } = message
 
-    messages[roomId] = messages[roomId].filter((m) => m.messageId !== messageId)
+  //   messages[roomId] = messages[roomId].filter((m) => m.messageId !== messageId)
+  //   Message.deleteOne({ messageId })
 
-    updateMessageList()
-  })
+  //   updateMessageList()
+  // })
 }
