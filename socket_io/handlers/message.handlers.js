@@ -1,10 +1,10 @@
+import Room from '../../models/room.model.js'
 import { Message } from '../../models/message.model.js'
 
 const messages = {}
 
 export default function messageHandlers(io, socket) {
   const { roomId, roomList } = socket
-
   const updateMessageList = (room) => {
     io.to(roomId).emit('message_list:update', messages[room])
   }
@@ -30,9 +30,8 @@ export default function messageHandlers(io, socket) {
     }
   })
 
-  socket.on('message:add', (message) => {
+  socket.on('message:add', async (message) => {
     Message.create(message)
-
     message.createdAt = Date.now()
     messages[message.roomId].push(message)
 
@@ -41,10 +40,15 @@ export default function messageHandlers(io, socket) {
     rm['date'] = message.createdAt
     updateRoomList()
     updateMessageList(message.roomId)
+    await Room.findOneAndUpdate(
+      { roomId: message.roomId },
+      { lastMessage: message.text }
+    )
   })
 
   // socket.on('message:remove', (message) => {
   //   const { messageId } = message
+  //   console.log(message)
 
   //   messages[roomId] = messages[roomId].filter((m) => m.messageId !== messageId)
   //   Message.deleteOne({ messageId })

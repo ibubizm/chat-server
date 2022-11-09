@@ -1,36 +1,37 @@
-import Room from '../../models/room.model'
+import Room from '../../models/room.model.js'
 
-var rooms = []
+const rooms = []
 
 export default function roomHandler(io, socket) {
   const { roomId } = socket
 
-  socket.on('create', function (roomname) {
-    rooms[room] = room
-    socket.room = roomname
-    socket.join(roomname)
-    subscribe.subscribe(socket.room)
+  // socket.on('create', function (roomname) {
+  //   rooms[room] = room
+  //   socket.room = roomname
+  //   socket.join(roomname)
+  //   subscribe.subscribe(socket.room)
+  // })
+
+  socket.on('rooms:create', async (room) => {
+    try {
+      const candidate = await Room.findOne({ roomId: room.roomId })
+      // console.log(room, '------------crate room')
+      if (candidate) {
+        return console.log('room already exist')
+      }
+      Room.create(room)
+    } catch (e) {
+      console.log(e)
+    }
   })
 
-  // const updateRoomsList = () => {
-  //   io.to(roomId).emit('room:update', rooms[roomId])
-  // }
+  socket.on('roo:get', async () => {
+    const _rooms = await Room.find()
+    // rooms[] =
+    // socket.roomList = rooms
+    console.log(_rooms, '--------------roooms')
+    // rooms = _rooms
 
-  // socket.on('room:create', async (room) => {
-  //   const candidate = await Room.find({ roomId })
-  //   console.log(room, '---------')
-  //   if (!candidate) {
-  //     console.log('no')
-  //   } else {
-  //     console.log('yes')
-  //   }
-  //   try {
-  //     rooms[roomId] = room
-  //     // const rm = await Room.create()
-  //     updateRoomsList()
-  //   } catch {
-  //     console.log('create error')
-  //   }
-  // })
-  // socket.on()
+    socket.emit('rooms:all', _rooms)
+  })
 }

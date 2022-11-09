@@ -1,5 +1,6 @@
 import userHandlers from './handlers/user.handler.js'
 import messageHandlers from './handlers/message.handlers.js'
+import roomHandler from './handlers/room.handler.js'
 
 let roomList = [
   {
@@ -25,8 +26,8 @@ export default function onConnection(io, socket) {
   socket.userName = userName
 
   socket.join(roomId)
-
   userHandlers(io, socket)
 
   messageHandlers(io, socket)
+  roomHandler(io, socket)
 }

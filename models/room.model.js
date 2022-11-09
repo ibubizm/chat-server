@@ -1,18 +1,17 @@
 import { Schema, model } from 'mongoose'
-import User from './users.model'
-import Message from './message.model'
 
 const roomSchema = new Schema(
   {
     roomId: {
-      type: Array,
+      type: String,
       unique: true,
     },
-    avatarRoom: {
+    roomAvatar: {
       type: String,
     },
-    users: [User],
-    messages: [Message],
+    lastMessage: {
+      type: String,
+    },
     created_at: Date,
   },
   {
