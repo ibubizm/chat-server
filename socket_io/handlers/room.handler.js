@@ -5,17 +5,24 @@ const rooms = []
 export default function roomHandler(io, socket) {
   const { roomId } = socket
 
-  // socket.on('create', function (roomname) {
-  //   rooms[room] = room
-  //   socket.room = roomname
-  //   socket.join(roomname)
-  //   subscribe.subscribe(socket.room)
-  // })
+  const roomUpdate = (r) => {
+    io.to(roomId).emit('room_list:update', rooms['mass'])
+  }
+
+  socket.on('room:update', async (mes) => {
+    const _rooms = await Room.find()
+    rooms['mass'].forEach((element) => {
+      if (element.roomId === mes.roomId) {
+        element.lastMessage = mes.text
+        element.updatedAt = Date()
+      }
+    })
+    roomUpdate(_rooms)
+  })
 
   socket.on('rooms:create', async (room) => {
     try {
       const candidate = await Room.findOne({ roomId: room.roomId })
-      // console.log(room, '------------crate room')
       if (candidate) {
         return console.log('room already exist')
       }
@@ -25,13 +32,9 @@ export default function roomHandler(io, socket) {
     }
   })
 
-  socket.on('roo:get', async () => {
+  socket.on('room:get', async () => {
     const _rooms = await Room.find()
-    // rooms[] =
-    // socket.roomList = rooms
-    console.log(_rooms, '--------------roooms')
-    // rooms = _rooms
-
+    rooms['mass'] = _rooms
     socket.emit('rooms:all', _rooms)
   })
 }
