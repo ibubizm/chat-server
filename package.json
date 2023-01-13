@@ -13,7 +13,8 @@
     "dev:client": "npm run start --prefix client",
     "dev:server": "npm run dev --prefix server",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
-    "devkit": "nodemon index.js"
+    "devkit": "nodemon index.js",
+    "build": "npm install && npm run build"
   },
   "keywords": [],
   "author": "",
