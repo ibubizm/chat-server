@@ -1,16 +1,25 @@
 import cors from 'cors'
 import express from 'express'
+import fileupload from 'express-fileupload'
 import mongoose from 'mongoose'
 import { Server } from 'socket.io'
 import { DB_URL, ALLOWED_ORIGIN } from './config.js'
 import { createServer } from 'http'
 import onConnection from './socket_io/onConnection.js'
+import path from 'path'
+import fileDirName from './utils/fileDirName.js'
+
+const { __dirname } = fileDirName(import.meta)
 
 const app = express()
 const PORT = process.env.PORT || 4000
 
-app.use(cors({ origin: ALLOWED_ORIGIN }))
 app.use(express.json())
+app.use(cors({ origin: ALLOWED_ORIGIN }))
+app.use(fileupload({}))
+
+app.use('/avatars', express.static(path.join(__dirname, 'avatars')))
+app.use(express.urlencoded({ extended: true }))
 
 const server = createServer(app)
 

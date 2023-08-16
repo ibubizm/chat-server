@@ -35,13 +35,25 @@ export default function messageHandlers(io, socket) {
     )
   })
 
-  // socket.on('message:remove', (message) => {
-  //   const { messageId } = message
-  //   console.log(message)
+  socket.on('message:remove', async (message) => {
+    const { messageId } = message
+    messages[roomId] = messages[roomId].filter((m) => m.messageId !== messageId)
+    updateMessageList(message.roomId)
+    await Message.deleteOne({ _id: message._id })
+  })
 
-  //   messages[roomId] = messages[roomId].filter((m) => m.messageId !== messageId)
-  //   Message.deleteOne({ messageId })
+  socket.on('message:edit', async (message) => {
+    const { messageId, text } = message
 
-  //   updateMessageList()
-  // })
+    messages[roomId].find((m) => {
+      if (m.messageId == messageId) {
+        m.text = text
+      }
+    })
+    updateMessageList(message.roomId)
+    await Message.findOneAndUpdate(
+      { _id: message._id },
+      { text: message.text, updated: true }
+    )
+  })
 }
