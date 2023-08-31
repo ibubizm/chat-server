@@ -1,33 +1,39 @@
 import userHandlers from './handlers/user.handler.js'
 import messageHandlers from './handlers/message.handlers.js'
 import roomHandler from './handlers/room.handler.js'
+import Room from '../models/room.model.js'
 
-let roomList = [
-  {
-    roomId: 'mainRoom',
-    roomAvatar: 'https://avatars.githubusercontent.com/u/66380357?v=4',
-  },
-  {
-    roomId: 'second',
-    roomAvatar:
-      'https://thatshelf.com/wp-content/uploads/2014/07/Futurama-Fry.jpg',
-  },
-  {
-    roomId: 'ibubizm',
-    roomAvatar:
-      'https://culturedvultures.com/wp-content/uploads/2021/11/F-Is-For-Family-S5.jpg',
-  },
-]
+const roomList = Room.find()
+const users = []
 
-export default function onConnection(io, socket) {
+const rooms = []
+
+// const rooms = {}
+
+export default async function onConnection(io, socket) {
   const { roomId, userName } = socket.handshake.query
   socket.roomList = roomList
   socket.roomId = roomId
   socket.userName = userName
 
   socket.join(roomId)
+
+  const roomUpdate = () => {
+    io.to(roomId).emit('room_list:update', rooms['mass'])
+  }
+
+  // if (!users.includes(userName)) {
+  //   users.push(userName)
+  // }
+
+  // socket.on('disconnect', () => {
+  //   users.filter((u) => u !== userName)
+  // })
+
+  // io.sockets.in(roomId).emit('conect', users)
+
   userHandlers(io, socket)
 
-  messageHandlers(io, socket)
-  roomHandler(io, socket)
+  messageHandlers(io, socket, roomUpdate)
+  roomHandler(io, socket, roomUpdate, rooms)
 }

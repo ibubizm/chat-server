@@ -9,6 +9,7 @@ const userSchema = new Schema({
   avatar: {
     type: String,
     required: false,
+    default: '',
   },
   admin: {
     type: Boolean,
@@ -17,6 +18,12 @@ const userSchema = new Schema({
   roomId: {
     type: [{ roomId: String, roomAvatar: String }],
   },
+  subscriptions: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Room',
+    },
+  ],
 })
 
-export default model('User', userSchema)
+export const User = model('User', userSchema)

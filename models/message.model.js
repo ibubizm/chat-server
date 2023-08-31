@@ -1,9 +1,10 @@
-import { Schema, model } from 'mongoose'
+import { Schema, model, ObjectId } from 'mongoose'
 
 const messageSchema = new Schema(
   {
-    avatar: {
-      type: String,
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     messageId: {
       type: String,
@@ -11,7 +12,8 @@ const messageSchema = new Schema(
       unique: true,
     },
     roomId: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: 'Room',
       required: true,
     },
     userId: {
@@ -20,7 +22,7 @@ const messageSchema = new Schema(
     },
     userName: {
       type: String,
-      required: true,
+      // required: true,
     },
     text: {
       type: String,

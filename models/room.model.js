@@ -2,6 +2,16 @@ import { Schema, model } from 'mongoose'
 
 const roomSchema = new Schema(
   {
+    admin: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    subscribers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     roomId: {
       type: String,
       unique: true,

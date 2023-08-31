@@ -1,23 +1,16 @@
 import Room from '../../models/room.model.js'
 
-const rooms = []
-
-export default function roomHandler(io, socket) {
+export default function roomHandler(io, socket, roomUpdate, rooms) {
   const { roomId } = socket
 
-  const roomUpdate = (r) => {
-    io.to(roomId).emit('room_list:update', rooms['mass'])
-  }
-
   socket.on('room:update', async (mes) => {
-    const _rooms = await Room.find()
     rooms['mass'].forEach((element) => {
-      if (element.roomId === mes.roomId) {
+      if (element._id == mes.roomId) {
         element.lastMessage = mes.text
         element.updatedAt = Date()
       }
     })
-    roomUpdate(_rooms)
+    roomUpdate()
   })
 
   socket.on('rooms:create', async (room) => {
@@ -26,7 +19,9 @@ export default function roomHandler(io, socket) {
       if (candidate) {
         return console.log('room already exist')
       }
-      Room.create(room)
+      const newRoom = await Room.create(room)
+      rooms['mass'].push(newRoom)
+      roomUpdate()
     } catch (e) {
       console.log(e)
     }
