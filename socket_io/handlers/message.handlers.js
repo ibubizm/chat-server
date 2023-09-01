@@ -9,6 +9,7 @@ export default function messageHandlers(io, socket, roomUpdate) {
   const { roomId } = socket
 
   const updateMessageList = (room) => {
+    console.log(messages)
     io.to(roomId).emit('message_list:update', messages[room])
   }
 
@@ -26,9 +27,10 @@ export default function messageHandlers(io, socket, roomUpdate) {
   })
 
   socket.on('message:add', async (message) => {
-    Message.create(message)
+    const mes = await Message.create(message)
     message.createdAt = Date.now()
-    messages[message.roomId].push(message)
+    const res = await Message.findById(mes._id).populate('author')
+    messages[message.roomId].push(res)
     updateMessageList(message.roomId)
     await Room.findByIdAndUpdate(Types.ObjectId(message.roomId), {
       lastMessage: message.text,
