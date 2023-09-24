@@ -1,7 +1,5 @@
-import Room from '../../models/room.model.js'
 import { Message } from '../../models/message.model.js'
 import { Types } from 'mongoose'
-import { User } from '../../models/users.model.js'
 
 const messages = [] //Obj
 
@@ -9,7 +7,6 @@ export default function messageHandlers(io, socket, roomUpdate) {
   const { roomId } = socket
 
   const updateMessageList = (room) => {
-    console.log(messages)
     io.to(roomId).emit('message_list:update', messages[room])
   }
 
@@ -32,9 +29,13 @@ export default function messageHandlers(io, socket, roomUpdate) {
     const res = await Message.findById(mes._id).populate('author')
     messages[message.roomId].push(res)
     updateMessageList(message.roomId)
-    await Room.findByIdAndUpdate(Types.ObjectId(message.roomId), {
-      lastMessage: message.text,
-    })
+    // await Room.findByIdAndUpdate(
+    //   Types.ObjectId(message.roomId),
+    //   {
+    //     lastMessage: message.text,
+    //   },
+    //   { new: true }
+    // )
     roomUpdate()
   })
 

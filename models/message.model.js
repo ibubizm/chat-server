@@ -27,6 +27,10 @@ const messageSchema = new Schema(
     text: {
       type: String,
     },
+    replyId: {
+      type: String,
+      default: undefined,
+    },
     updated: {
       type: Boolean,
       default: false,

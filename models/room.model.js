@@ -8,6 +8,7 @@ const roomSchema = new Schema(
     },
     subscribers: [
       {
+        unique: true,
         type: Schema.Types.ObjectId,
         ref: 'User',
       },

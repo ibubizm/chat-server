@@ -9,6 +9,7 @@ import onConnection from './socket_io/onConnection.js'
 import path from 'path'
 import fileDirName from './utils/fileDirName.js'
 import { router } from './router/authRouter.js'
+import { roomsRouter } from './router/roomRouter.js'
 
 const { __dirname } = fileDirName(import.meta)
 
@@ -20,6 +21,7 @@ app.use(cors())
 app.use(fileupload())
 
 app.use('/auth', router)
+app.use('/rooms', roomsRouter)
 
 app.use('/avatars', express.static(path.join(__dirname, 'avatars')))
 app.use(express.urlencoded({ extended: true }))
@@ -34,15 +36,6 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   onConnection(io, socket)
 })
-
-// mongoose
-//   .connect(DB_URL, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   })
-//   .then(() => {
-//     console.log('db connected')
-//   })
 
 server.listen(PORT, async () => {
   try {

@@ -35,12 +35,10 @@ class AuthorithationController {
 
   async updateUser(req, res) {
     const { userId, userName } = req.body
-    console.log(userId, userName)
     let fileName = ''
 
     if (req.files) {
       const { avatar } = req.files
-      console.log(avatar)
       fileName = uuidv4() + '.jpg'
       avatar.mv(path.resolve(__dirname, '..', 'avatars', fileName))
     }
@@ -72,8 +70,7 @@ class AuthorithationController {
     try {
       const { userId } = req.body
 
-      const user = await User.findById(userId)
-      console.log(user)
+      const user = await User.findById(userId).populate('subscriptions')
       return res.json({ user })
     } catch (e) {
       console.log(e)

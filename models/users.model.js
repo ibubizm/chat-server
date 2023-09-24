@@ -15,13 +15,14 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  roomId: {
-    type: [{ roomId: String, roomAvatar: String }],
-  },
+  // roomId: {
+  //   type: [{ roomId: String, roomAvatar: String }],
+  // },
   subscriptions: [
     {
       type: Schema.Types.ObjectId,
       ref: 'Room',
+      unique: true,
     },
   ],
 })
