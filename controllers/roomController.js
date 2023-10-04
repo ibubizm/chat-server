@@ -48,22 +48,30 @@ class RoomController {
   }
 
   async unSubscribe(req, res) {
-    const { userId, roomId } = req.body
-    const user = await User.findById(userId)
-    const room = await Room.findById(roomId)
-    user.subscriptions.pull(roomId)
-    room.subscribers.pull(userId)
+    try {
+      const { userId, roomId } = req.body
+      const user = await User.findById(userId)
+      const room = await Room.findById(roomId)
+      user.subscriptions.pull(roomId)
+      room.subscribers.pull(userId)
 
-    await room.save()
+      await room.save()
 
-    return res.json({ room, user })
+      return res.json({ room, user })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async getSubscribers(req, res) {
-    const { roomId } = req.body
-    const sub = await Room.findById(roomId).populate('subscribers')
+    try {
+      const { roomId } = req.body
+      const sub = await Room.findById(roomId).populate('subscribers')
 
-    return res.json({ subscribers: sub.subscribers })
+      return res.json({ subscribers: sub.subscribers })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async createRoom(req, res) {
