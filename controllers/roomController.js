@@ -3,48 +3,68 @@ import { User } from '../models/users.model.js'
 
 class RoomController {
   async getRooms(req, res) {
-    const { userId } = req.body
-    const rooms = await Room.find({ subscribers: userId })
-    // const roomsChangeStream = Room.watch()
+    try {
+      const { userId } = req.body
+      const rooms = await Room.find({ subscribers: userId })
 
-    // roomsChangeStream.on('change', (change) => {
-    //   console.log('Изменение в коллекции "rooms":', change)
-    // })
-
-    // console.log(rooms, 'rrrr')
-    return res.json({ rooms })
+      return res.json({ rooms })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async findRoom(req, res) {
-    const { roomId } = req.query
-    const rooms = await Room.find({ roomId: { $regex: roomId } })
-    return res.json({ rooms })
+    try {
+      const { roomId } = req.query
+      const rooms = await Room.find({ roomId: { $regex: roomId } })
+      return res.json({ rooms })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async updateRoom(req, res) {
-    const { roomId, lastMessage } = req.body
-    const updatedRoom = await Room.findByIdAndUpdate(
-      roomId,
-      {
-        lastMessage: lastMessage,
-      },
-      { new: true }
-    )
-    return res.json({ rooms: updatedRoom })
+    try {
+      const { roomId, lastMessage } = req.body
+      const updatedRoom = await Room.findByIdAndUpdate(
+        roomId,
+        {
+          lastMessage: lastMessage,
+        },
+        { new: true }
+      )
+      return res.json({ rooms: updatedRoom })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async subscribe(req, res) {
-    const { userId, roomId } = req.body
-    const user = await User.findById(userId)
-    user.subscriptions.push(roomId)
+    try {
+      const { userId, roomId } = req.body
+      const user = await User.findById(userId)
+      user.subscriptions.addToSet(roomId)
 
-    const room = await Room.findById(roomId)
+      const room = await Room.findById(roomId)
+      room.subscribers.addToSet(userId)
 
-    room.subscribers.push(userId)
-    await user.save()
-    await room.save()
-
-    return res.json({ room, user })
+      // const user = await User.findOneAndUpdate(
+      //   { _id: userId },
+      //   { $addToSet: { subscriptions: [roomId] } },
+      //   { new: true }
+      // )
+      // const room = await Room.findOneAndUpdate(
+      //   { _id: roomId },
+      //   { $addToSet: { subscribers: [userId] } },
+      //   { new: true }
+      // )
+      await user.save()
+      await room.save()
+      console.log(user, room, 'user sub')
+      return res.json({ room, user })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async unSubscribe(req, res) {
@@ -55,8 +75,21 @@ class RoomController {
       user.subscriptions.pull(roomId)
       room.subscribers.pull(userId)
 
-      await room.save()
+      // const user = await User.findOneAndUpdate(
+      //   { _id: userId },
+      //   { $pullAll: { subscriptions: [roomId] } },
+      //   { new: true }
+      // )
+      // const room = await Room.findOneAndUpdate(
+      //   { _id: roomId },
+      //   { $pullAll: { subscribers: [userId] } },
+      //   { new: true }
+      // )
 
+      await room.save()
+      await user.save()
+
+      console.log(user, room, 'user unsub')
       return res.json({ room, user })
     } catch (e) {
       console.log(e)
@@ -67,7 +100,7 @@ class RoomController {
     try {
       const { roomId } = req.body
       const sub = await Room.findById(roomId).populate('subscribers')
-
+      // console.log(sub, '------users subs')
       return res.json({ subscribers: sub.subscribers })
     } catch (e) {
       console.log(e)

@@ -34,36 +34,44 @@ class AuthorithationController {
   }
 
   async updateUser(req, res) {
-    const { userId, userName } = req.body
-    let fileName = ''
+    try {
+      const { userId, userName } = req.body
+      let fileName = ''
 
-    if (req.files) {
-      const { avatar } = req.files
-      fileName = uuidv4() + '.jpg'
-      avatar.mv(path.resolve(__dirname, '..', 'avatars', fileName))
+      if (req.files) {
+        const { avatar } = req.files
+        fileName = uuidv4() + '.jpg'
+        avatar.mv(path.resolve(__dirname, '..', 'avatars', fileName))
+      }
+
+      const user = await User.findByIdAndUpdate(userId, {
+        userName,
+        avatar: fileName,
+      })
+      return res.status(201).json({ message: 'user was updated', user })
+    } catch (e) {
+      console.log(e)
     }
-
-    const user = await User.findByIdAndUpdate(userId, {
-      userName,
-      avatar: fileName,
-    })
-    return res.status(201).json({ message: 'user was updated', user })
   }
 
   async login(req, res) {
-    const { userName } = req.body
-    const candidate = await User.findOne({ userName })
+    try {
+      const { userName } = req.body
+      const candidate = await User.findOne({ userName })
 
-    if (!candidate) {
-      return res
-        .status(400)
-        .json({ message: `User with username ${userName} not found` })
+      if (!candidate) {
+        return res
+          .status(400)
+          .json({ message: `User with username ${userName} not found` })
+      }
+
+      return res.status(200).json({
+        message: 'loggedIn',
+        user: candidate,
+      })
+    } catch (e) {
+      console.log(e)
     }
-
-    return res.status(200).json({
-      message: 'loggedIn',
-      user: candidate,
-    })
   }
 
   async auth(req, res) {
